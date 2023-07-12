@@ -1,58 +1,26 @@
-import { useEffect, useReducer } from "react";
+import { useState } from "react";
+import { useQuery } from "react-query";
 
-const initialState = {
-  loading: true,
-  error: null,
-  data: null,
-};
+const useFetch = (API_URL) => {
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "INIT_REQUEST":
-      return {
-        loading: true,
-        error: null,
-        data: null,
-      };
-    case "REQUEST_FAILURE":
-      return {
-        loading: false,
-        error: action.payload?.error,
-        data: null,
-      };
-    case "REQUEST_SUCCESS":
-      return {
-        loading: false,
-        error: null,
-        data: action.payload?.data,
-      };
-    default:
-      return state;
-  }
-};
+  const [error, setError] = useState(false);
 
-export function useGetData(API_URL) {
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  useEffect(() => {
-    requestData();
-  }, []);
-
-  async function requestData() {
+  const { data, isError, isLoading: loading, isSuccess } = useQuery('products', async () => {
     try {
-      dispatch({ type: "INIT_REQUEST" });
-      const response = await fetch(API_URL);
-      const json = await response.json();
+      const res = await fetch(API_URL);
+      const json = await res.json();
 
-      if (json.error) {
-        dispatch({ type: "REQUEST_FAILURE", payload: { error: json.error } });
-      } else {
-        dispatch({ type: "REQUEST_SUCCESS", payload: { data: json } });
+      if (json.error == "Not Found") {
+        setError(true);
       }
-    } catch (e) {
-      console.error("Error: ", e);
-    }
-  }
+      return json;
 
-  return { data: state.data, error: state.error, loading: state.loading };
+    } catch (e) {
+      setError(true);      
+    }
+  })
+
+  return { data, error, loading, isSuccess }
 }
+
+export default useFetch;

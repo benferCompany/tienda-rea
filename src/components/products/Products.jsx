@@ -1,42 +1,16 @@
-import { useParams } from "react-router-dom";
-
 import CardProduct from "./card_product/Card_product";
-import React, { useState } from "react";
-import { useQuery } from "react-query";
+import useFetch from "../../hook/useFetch";
+import usePagination from "../../hook/usePagination";
+
+
+
+
 
 function Products() {
-    const [error, setError] = useState(false);
-    const { data, isError, isLoading: loading } = useQuery('products', async () => {
-        const res = await fetch("https://api.escuelajs.co/api/v1/products");
-        const json = await res.json();
-        if (json.error == "Not Found") {
-            setError(true);
-        }
-        return json;
-    })
-
-    if (loading) {
-        return (<h1>Cargando....</h1>)
-    }
-    if (error) {
-        return (
-            <>
-                <h1>Error en la petición!</h1>
-                <p>{error}</p>
-            </>
-        );
-    }
-
-    if (data.length == 0 && !loading) {
-        return (
-            <>
-                <h1>No hay datos para mostrar!</h1>
-                
-            </>
-        );
-    }
+    const { startIndex, endIndex,handlePageChange,currentPage,pageSize } = usePagination();
+    const { data, loading, error } = useFetch("https://api.escuelajs.co/api/v1/products"); 
     
-
+    const dataCount = data ? data.length/pageSize:0; 
     return (
         <>
             <div>
@@ -44,12 +18,26 @@ function Products() {
                     <h1 className="ms-5">Productos</h1>
                 </div>
                 <div className="row justify-content-center">
-                    {data.map((element) => {
-                        return <CardProduct data={element} />
+                    {data && data.slice(startIndex, endIndex).map((element, index) => {
+                        return <CardProduct key={index} data={element} />
                     })}
+
+                    {error && <h1>Error en la petición!</h1>}
+                    {loading && <h1>Cargando....</h1>}
+
+                    <div className="d-flex justify-content-center">
+                        <nav aria-label="Page navigation example">
+                            <ul className="pagination">
+                                <li onClick={() => handlePageChange(currentPage - 1, data.length)} className="page-item"><a className="page-link" href="#">Anterior</a></li>
+                                <li className="page-item"><a className="page-link" href="#">{currentPage} de {dataCount.toFixed(0)}</a></li>
+                                <li onClick={() => handlePageChange(currentPage + 1, data.length)} className="page-item"><a className="page-link" href="#">Siguiente</a></li>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
 
             </div>
+
         </>
     )
 }

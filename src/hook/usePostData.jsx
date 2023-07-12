@@ -42,7 +42,7 @@ const usePostData = (API_URL) => {
                 if (json.error == "Not Found" || json.statusCode == 401) {
                     setError(true);
                     setSuccess(false)
-                } else if (createUserMutation.isSuccess && json.statusCode != 401) {
+                } else if (json.statusCode != 401) {
                     setError(false);
                     setSuccess(true);
                 }

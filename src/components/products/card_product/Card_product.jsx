@@ -12,7 +12,7 @@ function CardProduct(data) {
                         <strong className="card-text">Titulo: {data.data.title}</strong>
                         <p>{data.data.description}</p>
                         <h2>${data.data.price}</h2>
-                        <Link to="#" className="btn btn-primary">Ir a categoria</Link>
+                        <Link to="#" className="btn btn-primary">Ir a producto</Link>
                     </div>
                 </div>
             }
